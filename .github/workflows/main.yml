@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-
+      
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
@@ -32,8 +32,8 @@ jobs:
           cp dist/app dmg_temp/
           hdiutil create -volname "MijnApp" -srcfolder dmg_temp -ov -format UDZO MijnApp.dmg
 
-      - name: Upload DMG
-        uses: actions/upload-artifact@v3
+      - name: Upload DMG artifact
+        uses: actions/upload-artifact@v4
         with:
           name: MijnApp-dmg
           path: MijnApp.dmg
