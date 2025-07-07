@@ -1,0 +1,37 @@
+name: Build macOS .app and .dmg
+
+on:
+  push:
+    paths:
+      - '**.py'
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install PyInstaller
+      run: pip install pyinstaller
+
+    - name: Build .app (onefile)
+      run: pyinstaller --onefile --windowed --name ETS2Tool ets2tool.py
+
+    - name: Install create-dmg
+      run: brew install create-dmg
+
+    - name: Create .dmg
+      run: create-dmg dist/ETS2Tool.app
+
+    - name: Upload .dmg
+      uses: actions/upload-artifact@v4
+      with:
+        name: ETS2Tool-macOS
+        path: '*.dmg'
