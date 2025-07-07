@@ -22,15 +22,19 @@ jobs:
           python -m pip install --upgrade pip
           pip install pyinstaller PyQt5
 
-      - name: Build app with PyInstaller
+      - name: Build .app bundle with PyInstaller
         run: |
-          pyinstaller --onefile --windowed app.py
+          pyinstaller --windowed --name MijnApp app.py
 
-      - name: Create DMG
+      - name: Create DMG from .app
         run: |
-          mkdir dmg_temp
-          cp dist/app dmg_temp/
-          hdiutil create -volname "MijnApp" -srcfolder dmg_temp -ov -format UDZO MijnApp.dmg
+          hdiutil create -volname "MijnApp" -srcfolder "dist/MijnApp.app" -ov -format UDZO MijnApp.dmg
+
+      - name: Upload .app artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MijnApp-app
+          path: dist/MijnApp.app
 
       - name: Upload DMG artifact
         uses: actions/upload-artifact@v4
