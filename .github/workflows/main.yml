@@ -43,8 +43,8 @@ jobs:
             magick icon/icon.ico -resize ${size}x${size} iconset/icon_${size}x${size}.png
           done
 
+          # Alleen kopiëren waar bron en doel verschillen
           cp -f iconset/icon_32x32.png       iconset/icon_16x16@2x.png
-          # cp -f iconset/icon_32x32.png     iconset/icon_32x32.png  # verwijderd, want identiek kopiëren geeft error
           cp -f iconset/icon_64x64.png       iconset/icon_32x32@2x.png
           cp -f iconset/icon_128x128.png     iconset/icon_128x128.png
           cp -f iconset/icon_256x256.png     iconset/icon_128x128@2x.png
