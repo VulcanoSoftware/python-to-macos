@@ -17,13 +17,19 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install dependencies
+      - name: Install pipreqs and generate requirements.txt
         run: |
           python -m pip install --upgrade pip
-          pip install pyinstaller PyQt5
+          pip install pipreqs
+          pipreqs . --force
+
+      - name: Install dependencies from requirements.txt
+        run: |
+          pip install -r requirements.txt
 
       - name: Build .app bundle with PyInstaller
         run: |
+          pip install pyinstaller
           pyinstaller --windowed --name MijnApp app.py
 
       - name: Create DMG from .app
