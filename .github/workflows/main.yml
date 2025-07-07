@@ -17,6 +17,15 @@ jobs:
         with:
           python-version: '3.10'
 
+      - name: Detect Python file
+        id: detect_py
+        run: |
+          # Pak de eerste .py file in de repo root (pas eventueel aan als je subfolders hebt)
+          FILE=$(find . -maxdepth 1 -name "*.py" | head -n 1)
+          BASENAME=$(basename "$FILE" .py)
+          echo "PY_FILE=$FILE" >> $GITHUB_OUTPUT
+          echo "BASENAME=$BASENAME" >> $GITHUB_OUTPUT
+
       - name: Install pipreqs and generate requirements.txt
         run: |
           python -m pip install --upgrade pip
@@ -30,20 +39,20 @@ jobs:
       - name: Build .app bundle with PyInstaller
         run: |
           pip install pyinstaller
-          pyinstaller --windowed --name MijnApp app.py
+          pyinstaller --windowed --name ${{ steps.detect_py.outputs.BASENAME }} ${{ steps.detect_py.outputs.PY_FILE }}
 
       - name: Create DMG from .app
         run: |
-          hdiutil create -volname "MijnApp" -srcfolder "dist/MijnApp.app" -ov -format UDZO MijnApp.dmg
+          hdiutil create -volname "${{ steps.detect_py.outputs.BASENAME }}" -srcfolder "dist/${{ steps.detect_py.outputs.BASENAME }}.app" -ov -format UDZO "${{ steps.detect_py.outputs.BASENAME }}.dmg"
 
       - name: Upload .app artifact
         uses: actions/upload-artifact@v4
         with:
-          name: MijnApp-app
-          path: dist/MijnApp.app
+          name: ${{ steps.detect_py.outputs.BASENAME }}-app
+          path: dist/${{ steps.detect_py.outputs.BASENAME }}.app
 
       - name: Upload DMG artifact
         uses: actions/upload-artifact@v4
         with:
-          name: MijnApp-dmg
-          path: MijnApp.dmg
+          name: ${{ steps.detect_py.outputs.BASENAME }}-dmg
+          path: ${{ steps.detect_py.outputs.BASENAME }}.dmg
