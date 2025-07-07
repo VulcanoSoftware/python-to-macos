@@ -20,7 +20,6 @@ jobs:
       - name: Detect Python file
         id: detect_py
         run: |
-          # Pak de eerste .py file in de repo root (pas eventueel aan als je subfolders hebt)
           FILE=$(find . -maxdepth 1 -name "*.py" | head -n 1)
           BASENAME=$(basename "$FILE" .py)
           echo "PY_FILE=$FILE" >> $GITHUB_OUTPUT
@@ -36,14 +35,35 @@ jobs:
         run: |
           pip install -r requirements.txt
 
+      - name: Convert .ico to .icns
+        run: |
+          brew install imagemagick
+          mkdir -p iconset
+          sips -z 16 16     icon/icon.ico --out iconset/icon_16x16.png
+          sips -z 32 32     icon/icon.ico --out iconset/icon_16x16@2x.png
+          sips -z 32 32     icon/icon.ico --out iconset/icon_32x32.png
+          sips -z 64 64     icon/icon.ico --out iconset/icon_32x32@2x.png
+          sips -z 128 128   icon/icon.ico --out iconset/icon_128x128.png
+          sips -z 256 256   icon/icon.ico --out iconset/icon_128x128@2x.png
+          sips -z 256 256   icon/icon.ico --out iconset/icon_256x256.png
+          sips -z 512 512   icon/icon.ico --out iconset/icon_256x256@2x.png
+          sips -z 512 512   icon/icon.ico --out iconset/icon_512x512.png
+          cp iconset/icon_512x512.png iconset/icon_512x512@2x.png
+          iconutil -c icns iconset -o icon/icon.icns
+
       - name: Build .app bundle with PyInstaller
         run: |
           pip install pyinstaller
-          pyinstaller --windowed --name ${{ steps.detect_py.outputs.BASENAME }} ${{ steps.detect_py.outputs.PY_FILE }}
+          pyinstaller --windowed \
+                      --icon=icon/icon.icns \
+                      --name "${{ steps.detect_py.outputs.BASENAME }}" \
+                      "${{ steps.detect_py.outputs.PY_FILE }}"
 
       - name: Create DMG from .app
         run: |
-          hdiutil create -volname "${{ steps.detect_py.outputs.BASENAME }}" -srcfolder "dist/${{ steps.detect_py.outputs.BASENAME }}.app" -ov -format UDZO "${{ steps.detect_py.outputs.BASENAME }}.dmg"
+          hdiutil create -volname "${{ steps.detect_py.outputs.BASENAME }}" \
+                         -srcfolder "dist/${{ steps.detect_py.outputs.BASENAME }}.app" \
+                         -ov -format UDZO "${{ steps.detect_py.outputs.BASENAME }}.dmg"
 
       - name: Upload .app artifact
         uses: actions/upload-artifact@v4
