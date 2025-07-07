@@ -35,12 +35,10 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      - name: Build .app bundle with PyInstaller
-        run: |
-          pip install pyinstaller
-          pyinstaller --windowed --name ${{ steps.detect_py.outputs.BASENAME }} ${{ steps.detect_py.outputs.PY_FILE }}
+      - name: Install ImageMagick
+        run: brew install imagemagick
 
-      - name: Convert ICO to ICNS icon for the app
+      - name: Convert ICO icon to ICNS format
         run: |
           mkdir -p iconset
 
@@ -48,7 +46,6 @@ jobs:
             magick icon/icon.ico -resize ${size}x${size} iconset/icon_${size}x${size}.png
           done
 
-          # Kopieer alleen als bron en doel verschillen (geen identieke bestandsnamen)
           cp -f iconset/icon_32x32.png       iconset/icon_16x16@2x.png
           cp -f iconset/icon_64x64.png       iconset/icon_32x32@2x.png
           cp -f iconset/icon_256x256.png     iconset/icon_128x128@2x.png
@@ -57,16 +54,14 @@ jobs:
 
           iconutil -c icns iconset -o icon/icon.icns
 
-      - name: Build .app bundle with icon
+      - name: Build .app bundle with PyInstaller
         run: |
           pip install pyinstaller
-          pyinstaller --windowed --name ${{ steps.detect_py.outputs.BASENAME }} \
-          --icon=icon/icon.icns ${{ steps.detect_py.outputs.PY_FILE }}
+          pyinstaller --windowed --icon=icon/icon.icns --name ${{ steps.detect_py.outputs.BASENAME }} ${{ steps.detect_py.outputs.PY_FILE }}
 
       - name: Create DMG from .app
         run: |
-          hdiutil create -volname "${{ steps.detect_py.outputs.BASENAME }}" \
-          -srcfolder "dist/${{ steps.detect_py.outputs.BASENAME }}.app" -ov -format UDZO "${{ steps.detect_py.outputs.BASENAME }}.dmg"
+          hdiutil create -volname "${{ steps.detect_py.outputs.BASENAME }}" -srcfolder "dist/${{ steps.detect_py.outputs.BASENAME }}.app" -ov -format UDZO "${{ steps.detect_py.outputs.BASENAME }}.dmg"
 
       - name: Upload .app artifact
         uses: actions/upload-artifact@v4
