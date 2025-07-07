@@ -26,17 +26,14 @@ jobs:
           echo "PY_FILE=$FILE" >> $GITHUB_OUTPUT
           echo "BASENAME=$BASENAME" >> $GITHUB_OUTPUT
 
-      - name: Install pipreqs and generate requirements.txt
+      - name: Install dependencies and generate requirements
         run: |
           python -m pip install --upgrade pip
           pip install pipreqs
           pipreqs . --force
-
-      - name: Install dependencies from requirements.txt
-        run: |
           pip install -r requirements.txt
 
-      - name: Install ImageMagick (for .ico conversion)
+      - name: Install ImageMagick (for icon conversion)
         run: |
           brew install imagemagick
 
@@ -48,8 +45,7 @@ jobs:
             magick icon/icon.ico -resize ${size}x${size} iconset/icon_${size}x${size}.png
           done
 
-          # Kopieer juiste formaten naar iconset met correcte namen
-          cp -f iconset/icon_16x16.png       iconset/icon_16x16.png
+          # Kopieer naar juiste .iconset bestandsnamen (geen dubbele of identieke kopieën)
           cp -f iconset/icon_32x32.png       iconset/icon_16x16@2x.png
           cp -f iconset/icon_32x32.png       iconset/icon_32x32.png
           cp -f iconset/icon_64x64.png       iconset/icon_32x32@2x.png
