@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      
+
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
@@ -45,19 +45,20 @@ jobs:
           mkdir -p iconset
 
           for size in 16 32 64 128 256 512; do
-            convert icon/icon.ico -resize ${size}x${size} iconset/icon_${size}x${size}.png
+            magick icon/icon.ico -resize ${size}x${size} iconset/icon_${size}x${size}.png
           done
 
-          cp iconset/icon_16x16.png       iconset/icon_16x16.png
-          cp iconset/icon_32x32.png       iconset/icon_16x16@2x.png
-          cp iconset/icon_32x32.png       iconset/icon_32x32.png
-          cp iconset/icon_64x64.png       iconset/icon_32x32@2x.png
-          cp iconset/icon_128x128.png     iconset/icon_128x128.png
-          cp iconset/icon_256x256.png     iconset/icon_128x128@2x.png
-          cp iconset/icon_256x256.png     iconset/icon_256x256.png
-          cp iconset/icon_512x512.png     iconset/icon_256x256@2x.png
-          cp iconset/icon_512x512.png     iconset/icon_512x512.png
-          cp iconset/icon_512x512.png     iconset/icon_512x512@2x.png
+          # Kopieer juiste formaten naar iconset met correcte namen
+          cp -f iconset/icon_16x16.png       iconset/icon_16x16.png
+          cp -f iconset/icon_32x32.png       iconset/icon_16x16@2x.png
+          cp -f iconset/icon_32x32.png       iconset/icon_32x32.png
+          cp -f iconset/icon_64x64.png       iconset/icon_32x32@2x.png
+          cp -f iconset/icon_128x128.png     iconset/icon_128x128.png
+          cp -f iconset/icon_256x256.png     iconset/icon_128x128@2x.png
+          cp -f iconset/icon_256x256.png     iconset/icon_256x256.png
+          cp -f iconset/icon_512x512.png     iconset/icon_256x256@2x.png
+          cp -f iconset/icon_512x512.png     iconset/icon_512x512.png
+          cp -f iconset/icon_512x512.png     iconset/icon_512x512@2x.png
 
           iconutil -c icns iconset -o icon/icon.icns
 
