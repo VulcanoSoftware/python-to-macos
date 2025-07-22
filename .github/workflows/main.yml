@@ -32,16 +32,18 @@ jobs:
           pipreqs . --force
 
       - name: Install dependencies from requirements.txt
-        run: |
-          pip install -r requirements.txt
+        run: pip install -r requirements.txt
 
       - name: Install ImageMagick
         run: brew install imagemagick
 
       - name: Prepare iconset folder and convert icon.ico to icon.icns
         run: |
+          if [ ! -f icon/icon.ico ]; then
+            echo "icon.ico not found in icon/ folder, skipping icon conversion"
+            exit 1
+          fi
           mkdir -p iconset
-
           magick icon/icon.ico -resize 16x16     iconset/icon_16x16.png
           magick icon/icon.ico -resize 32x32     iconset/icon_16x16@2x.png
           magick icon/icon.ico -resize 32x32     iconset/icon_32x32.png
@@ -58,7 +60,7 @@ jobs:
       - name: Build .app bundle with PyInstaller
         run: |
           pip install pyinstaller
-          pyinstaller --windowed --name ${{ steps.detect_py.outputs.BASENAME }} --icon=icon/icon.icns ${{ steps.detect_py.outputs.PY_FILE }}
+          pyinstaller --windowed --name "${{ steps.detect_py.outputs.BASENAME }}" --icon=icon/icon.icns "${{ steps.detect_py.outputs.PY_FILE }}"
 
       - name: Create DMG from .app
         run: |
